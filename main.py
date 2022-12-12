@@ -9,8 +9,8 @@ pygame.init()
 SCREEN = pygame.display.set_mode([W * SCALE, H * SCALE])
 
 
-class Game:
 
+class Game:
     def __init__(self):
         self.width = W
         self.height = H
@@ -58,6 +58,12 @@ RIGHT = Pos(1, 0)
 LEFT = Pos(-1, 0)
 
 M = [UP, DOWN, RIGHT, LEFT]
+KEY_TO_M = {
+  pygame.K_w: [UP, DOWN],
+  pygame.K_s: [DOWN, UP],
+  pygame.K_d: [RIGHT, LEFT],
+  pygame.K_a: [LEFT, RIGHT],
+}
 
 example_game = Game()
 
@@ -65,9 +71,19 @@ while True:
     example_game.display()
     if not example_game.next_step():
         break
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        print("W GÓRę!")
+    
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.KEYDOWN:
+          if example_game.direction not in KEY_TO_M[event.key]:
+            if event.key == pygame.K_w:
+              example_game.direction = UP
+            elif event.key == pygame.K_s:
+              example_game.direction = DOWN
+            elif event.key == pygame.K_d:
+              example_game.direction = RIGHT
+            elif event.key == pygame.K_a:
+              example_game.direcion = LEFT
     time.sleep(0.1)
 pygame.quit()
 
