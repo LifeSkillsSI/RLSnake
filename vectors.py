@@ -9,8 +9,8 @@ class Pos:
         self.y = y
 
     def random_pos(self):
-        self.x = random.randint(0, W)
-        self.y = random.randint(0, H)
+        self.x = random.randint(0, W-1)
+        self.y = random.randint(0, H-1)
 
     def __add__(self, o):
         return Pos(self.x + o.x, self.y + o.y)
