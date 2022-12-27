@@ -1,3 +1,3 @@
-W = 50  # "Logiczna" szerokość
-H = 50  # "Logiczna" wysokość
-SCALE = 10  # Skala ekran-logika
+W = 10  # "Logiczna" szerokość
+H = 10  # "Logiczna" wysokość
+SCALE = 25  # Skala ekran-logika

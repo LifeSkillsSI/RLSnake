@@ -19,20 +19,24 @@ class Game:
                       Pos(int(W / 2), int(H / 2)+2)]
         self.direction = UP
         self.score = 0
+        self.step_counter = 0
 
     def next_step(self):
         reward = 0
+        self.step_counter += 1
 
+        if (self.snake[0].euq_dist(self.apple) > (self.snake[0]+self.direction).euq_dist(self.apple)):
+            reward += 1
         self.snake.insert(0, self.snake[0] + self.direction)
         if self.snake[0].x < 0 or self.snake[0].y < 0 or self.snake[
-                0].x > W or self.snake[0].y > H or self.snake[0] in self.snake[1:]:
+                0].x >= W or self.snake[0].y >= H or self.snake[0] in self.snake[1:]:
             reward = -10
             return (reward, False, self.score)
         if self.snake[0] == self.apple:
             # Wąż się nie kurczy!
             # Wylosuj nową pozycję dla jabłka
             self.score += 1
-            reward = 10
+            reward += 10
             self.apple.random_pos()
             # Póki wylosowana wartość jest "w" wężu, losuj znowu
             while self.apple in self.snake:
@@ -104,7 +108,7 @@ class Game:
             Pos(self.snake[0].x-1, self.snake[0].y) in self.snake,
             self.snake[0].x-1 < 0 or self.snake[0].y < 0 or self.snake[0].x-1 > W or self.snake[0].y > H
         ])
-        return state
+        return state.reshape((1, 22))
 
 
 
@@ -132,18 +136,21 @@ def manual_control():
             time_elapsed_since_last_action = 0
 
             (reward, game_alright, score) = game.next_step()
-            print(score, reward)
             game.display()
+            print(reward)
             if not game_alright:
                 break
 
 def train():
+    running = True
+
     game = Game()
     agent = Agent()
+    print("Starting game no", agent.game_count)
 
-    while True:
+    while running:
         current_state = game.get_qstate()
-        action = agent.get_action(current_state)
+        (action, pred) = agent.get_action(current_state)
 
         game.direction = action
         (reward, game_alright, score) = game.next_step()
@@ -152,14 +159,20 @@ def train():
         new_state = game.get_qstate()
         
         # train short memory
-
+        agent.train_short_memory(current_state, pred, reward, new_state, game_alright)
         # append memory
         agent.memory.append((current_state, action, reward, new_state, game_alright))
 
-        if not game_alright:
+        if not game_alright or game.step_counter > 80*(game.score+3):
             game = Game()
             # train long memory
-
+            agent.replay_mem(1000)
+            print("Starting game no", agent.game_count)
+        
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                running = False
 
     pass
 

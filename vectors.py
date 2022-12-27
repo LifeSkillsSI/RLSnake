@@ -16,6 +16,9 @@ class Pos:
     def random_pos(self):
         self.x = random.randint(0, W-1)
         self.y = random.randint(0, H-1)
+    
+    def euq_dist(self, other):
+        return abs(self.x - other.x) + abs(self.y - other.y)
 
 UP = Pos(0, -1)
 DOWN = Pos(0, 1)
