@@ -76,3 +76,6 @@ class Agent:
         for (state, action, reward, new_state, alright) in batch:
             self.train_short_memory(state, action, reward, new_state, alright)
 
+    def load_model(self, model_path):
+        self.model.load_weights(model_path)
+

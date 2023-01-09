@@ -36,11 +36,12 @@ def manual_control():
             if not game_alright:
                 break
 
-def train():
+def train(model_path = ""):
     running = True
 
     game = Game(0)
     agent = Agent()
+    agent.load_model(model_path)
     print("Starting game no", agent.game_count)
 
     while running:
