@@ -1,8 +1,6 @@
 from dataclasses import dataclass
-import pygame, sys
+import pygame
 from pygame.locals import QUIT
-import random
-import time
 from vectors import *
 from consts import *
 import numpy as np
@@ -43,15 +41,21 @@ def train():
 
     game = Game(SCREEN)
     agent = Agent()
+    agent.load_model("D:/Github/RLSnake/saves/50")
     print("Starting game no", agent.game_count)
 
     while running:
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                running = False
+        
         current_state = game.get_qstate()
         (action, pred) = agent.get_action(current_state)
 
         game.direction = action
         (reward, game_alright, score) = game.next_step()
-        #game.display()
+        game.display()
 
         new_state = game.get_qstate()
         
@@ -67,20 +71,39 @@ def train():
             print("Starting game no", agent.game_count)
             if agent.game_count % 10 == 0:
                 agent.model.save("./saves/" + str(agent.game_count))
-        
-        #events = pygame.event.get()
-        #for event in events:
-        #    if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-        #        running = False
 
-    pass
+def evaluation():
+    running = True
+
+    game = Game(SCREEN)
+    agent = Agent()
+    agent.load_model("D:/Github/RLSnake/saves/50")
+
+    while running:
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                running = False
+        
+        current_state = game.get_qstate()
+        (action, pred) = agent.get_action(current_state)
+
+        game.direction = action
+        (reward, game_alright, score) = game.next_step()
+        game.display()
+
+        if not game_alright or game.step_counter > 80*(game.score+3):
+            game = Game(SCREEN)
+            print(score)
 
 if __name__ == "__main__":
-    option = input("Manual control? (y/n) ")
+    option = input("Manual control? (y/n/e) ")
     pygame.init()
     SCREEN = pygame.display.set_mode([W * SCALE, H * SCALE])
     if option == "y":
         manual_control()
+    if option == "e":
+        evaluation()
     else:
         train()
 

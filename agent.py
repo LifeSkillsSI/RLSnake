@@ -1,7 +1,7 @@
 from collections import deque
 import tensorflow as tf
 from tensorflow import keras
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras import Input
 from keras.layers import Dense
 from keras.optimizers import Adam
@@ -77,5 +77,6 @@ class Agent:
             self.train_short_memory(state, action, reward, new_state, alright)
 
     def load_model(self, model_path):
-        self.model.load_weights(model_path)
+        self.model = load_model(model_path)
+        self.game_count = int(model_path.split('/')[-1])
 
