@@ -77,7 +77,7 @@ def evaluation():
 
     game = Game(SCREEN)
     agent = Agent()
-    agent.load_model("D:/Github/RLSnake/saves/50")
+    agent.load_model("/home/przebot/Projects/Python/RLSnake/saves/10")
 
     while running:
         events = pygame.event.get()

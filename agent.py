@@ -37,17 +37,15 @@ class Agent:
     def get_action(self, state):
         pred = self.model.predict(state, verbose = "0")
         move = to_categorical(np.argmax(pred[0]), num_classes=3)
+
         clockwise_dir = [UP, RIGHT, DOWN, LEFT]
         cnt = 0
-        
-        epsilon = np.exp(-0.1*self.game_count)
-        if random.randint(0, 100) < epsilon:
-            cnt += random.randint(-1, 1)
-        else:
-            if move[0] == 1.0:
-                cnt -= 1
-            elif move[2] == 1.0:
-                cnt += 1
+
+        cnt += np.random.choice(
+            a=[-1,0,1],
+            size=1,
+            p=move
+        )[0]
         
         if state[0][1] == 1:
             cnt += 2
@@ -65,7 +63,6 @@ class Agent:
             target = reward + self.gamma * np.amax(self.model.predict(new_state, verbose = "0")[0])
         (_, target_f) = self.get_action(state)
         target_f[0][np.argmax(action)] = target
-        print(action)
         self.model.fit(state, target_f, epochs = 1)
     
     def replay_mem(self, replay_batch_size):

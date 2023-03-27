@@ -87,11 +87,6 @@ class Game:
         right = clockwise[(cnt+1)%4]
         left = clockwise[(cnt+3)%4]
 
-        '''if fwd == UP:
-            state = np.append(state, [
-                True, False, False, False,
-                
-            ])'''
         state = np.append(state, [
             fwd == UP,
             fwd == DOWN,
