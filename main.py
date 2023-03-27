@@ -7,8 +7,8 @@ import numpy as np
 from agent import Agent
 from game import Game
 
-def manual_control():
-    game = Game(SCREEN)
+def manual_control(screen = None):
+    game = Game(screen)
     time_elapsed_since_last_action = 0
     clock = pygame.time.Clock()
     req_dir = UP
@@ -36,19 +36,21 @@ def manual_control():
             if not game_alright:
                 break
 
-def train():
+def train(model_path = "", save_path="", use_pygame = False, screen = None):
     running = True
 
-    game = Game(SCREEN)
+    game = Game(screen)
     agent = Agent()
-    agent.load_model("D:/Github/RLSnake/saves/50")
+    if model_path != "":
+        agent.load_model(model_path)
     print("Starting game no", agent.game_count)
 
     while running:
-        events = pygame.event.get()
-        for event in events:
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                running = False
+        if use_pygame:
+            events = pygame.event.get()
+            for event in events:
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                    running = False
         
         current_state = game.get_qstate()
         (action, pred) = agent.get_action(current_state)
@@ -65,19 +67,19 @@ def train():
         agent.memory.append((current_state, pred, reward, new_state, game_alright))
 
         if not game_alright or game.step_counter > 80*(game.score+3):
-            game = Game(SCREEN)
+            game = Game(screen)
             # train long memory
             agent.replay_mem(1000)
             print("Starting game no", agent.game_count)
             if agent.game_count % 10 == 0:
-                agent.model.save("./saves/" + str(agent.game_count))
+                agent.model.save(save_path + str(agent.game_count))
 
-def evaluation():
+def evaluation(model_path = "", screen = None):
     running = True
 
-    game = Game(SCREEN)
+    game = Game(screen)
     agent = Agent()
-    agent.load_model("/home/przebot/Projects/Python/RLSnake/saves/10")
+    agent.load_model(model_path)
 
     while running:
         events = pygame.event.get()
@@ -93,7 +95,7 @@ def evaluation():
         game.display()
 
         if not game_alright or game.step_counter > 80*(game.score+3):
-            game = Game(SCREEN)
+            game = Game(screen)
             print(score)
 
 if __name__ == "__main__":
@@ -101,10 +103,10 @@ if __name__ == "__main__":
     pygame.init()
     SCREEN = pygame.display.set_mode([W * SCALE, H * SCALE])
     if option == "y":
-        manual_control()
+        manual_control(SCREEN)
     if option == "e":
-        evaluation()
+        evaluation("/home/przebot/Projects/Python/RLSnake/saves/10", SCREEN)
     else:
-        train()
+        train("", "./saves/", SCREEN)
 
     pygame.quit()
