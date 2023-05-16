@@ -42,6 +42,8 @@ class Game:
         return (reward, True, self.score)
 
     def display(self):
+        if self.screen is None:
+            return
         self.screen.fill((0, 0, 0))
 
         pygame.draw.rect(

@@ -36,12 +36,13 @@ def manual_control():
             if not game_alright:
                 break
 
-def train(model_path = ""):
+def train(model_path = "", screen = None):
     running = True
 
-    game = Game(0)
+    game = Game(screen)
     agent = Agent()
-    agent.load_model(model_path)
+    if model_path != "":
+        agent.load_model(model_path)
     print("Starting game no", agent.game_count)
 
     while running:
@@ -50,7 +51,7 @@ def train(model_path = ""):
 
         game.direction = action
         (reward, game_alright, score) = game.next_step()
-        #game.display()
+        game.display()
 
         new_state = game.get_qstate()
         
@@ -60,17 +61,18 @@ def train(model_path = ""):
         agent.memory.append((current_state, pred, reward, new_state, game_alright))
 
         if not game_alright or game.step_counter > 80*(game.score+3):
-            game = Game(0)
+            game = Game(screen)
             # train long memory
             agent.replay_mem(1000)
             print("Starting game no", agent.game_count)
             if agent.game_count % 10 == 0:
                 agent.model.save("./saves/" + str(agent.game_count))
         
-        #events = pygame.event.get()
-        #for event in events:
-        #    if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-        #        running = False
+        if screen is not None:
+            events = pygame.event.get()
+            for event in events:
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                    running = False
 
     pass
 

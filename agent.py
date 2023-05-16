@@ -57,9 +57,11 @@ class Agent:
         return (clockwise_dir[cnt%4], pred)
 
     def train_short_memory(self, state, action, reward, new_state, alright):
+        cur_gamma = self.gamma
         if not alright:
             target = reward
         else:
+            
             target = reward + self.gamma * np.amax(self.model.predict(new_state, verbose = "0")[0])
         (_, target_f) = self.get_action(state)
         target_f[0][np.argmax(action)] = target
