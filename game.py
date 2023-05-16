@@ -38,6 +38,8 @@ class Game:
             self.snake.pop()
         if (self.snake[0].x - self.apple.x)**2 + (self.snake[0].y - self.apple.y)**2 < (self.snake[1].x - self.apple.x)**2 + (self.snake[1].y - self.apple.y)**2:
             reward += 1
+        else:
+            reward -= 2
         print("Reward: " + str(reward))
         return (reward, True, self.score)
 

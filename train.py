@@ -56,7 +56,7 @@ def train(model_path = "", screen = None):
         new_state = game.get_qstate()
         
         # train short memory
-        agent.train_short_memory(current_state, pred, reward, new_state, game_alright)
+        #agent.train_short_memory(current_state, pred, reward, new_state, game_alright)
         # append memory
         agent.memory.append((current_state, pred, reward, new_state, game_alright))
 
@@ -66,7 +66,7 @@ def train(model_path = "", screen = None):
             agent.replay_mem(1000)
             print("Starting game no", agent.game_count)
             if agent.game_count % 10 == 0:
-                agent.model.save("./saves/" + str(agent.game_count))
+                agent.model.save("./saves-lrp/" + str(agent.game_count))
         
         if screen is not None:
             events = pygame.event.get()
@@ -77,8 +77,8 @@ def train(model_path = "", screen = None):
     pass
 
 if __name__ == "__main__":
-    #pygame.init()
-    #SCREEN = pygame.display.set_mode([W * SCALE, H * SCALE])
-    train("")
+    pygame.init()
+    SCREEN = pygame.display.set_mode([W * SCALE, H * SCALE])
+    train("", SCREEN)
 
-    #pygame.quit()
+    pygame.quit()

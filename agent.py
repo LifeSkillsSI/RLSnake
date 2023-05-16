@@ -7,6 +7,7 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 from keras.utils import to_categorical
 from consts import *
+from game import Game
 from vectors import *
 import numpy as np
 import random
@@ -25,7 +26,7 @@ class Agent:
         #self.model.add(Dense(3, activation='softmax'))
 
         #self.model.add(Dense(256, activation="relu", input_dim=22))
-        self.model.add(Dense(3, activation="softmax"))
+        self.model.add(Dense(3, activation="tanh"))
 
         self.model.compile(
             loss="mse",
@@ -38,7 +39,11 @@ class Agent:
     
     def get_action(self, state):
         pred = self.model.predict(state, verbose = "0")
-        move = to_categorical(np.argmax(pred[0]), num_classes=3)
+        print(pred)
+        # Pred has negative values, so we need to offset all the values by minimum value
+        pred[0] = pred[0] - np.min(pred)
+        pred[0] /= np.sum(pred[0])
+        print(pred)
 
         clockwise_dir = [UP, RIGHT, DOWN, LEFT]
         cnt = 0
@@ -46,7 +51,7 @@ class Agent:
         cnt += np.random.choice(
             a=[-1,0,1],
             size=1,
-            p=move
+            p=pred[0]
         )[0]
         
         if state[0][1] == 1:
@@ -57,13 +62,35 @@ class Agent:
             cnt += 3
 
         return (clockwise_dir[cnt%4], pred)
+    
+    def train_long_memory(self, state, action, reward, alright):
+        cur_gamma = self.gamma
+        target = 0
+        current_state = state
+        game = Game(None)
+        if not alright:
+            target = reward
+        else:
+            while cur_gamma > 0.5:
+                (action, _) = self.get_action(current_state)
+
+                game.direction = action
+                (reward, _, _) = game.next_step()
+                current_state = game.get_qstate()
+
+                target += cur_gamma * reward
+                
+                cur_gamma *= self.gamma
+        (_, target_f) = self.get_action(state)
+        target_f[0][np.argmax(action)] = target
+        self.model.fit(state, target_f, epochs = 1)
 
     def train_short_memory(self, state, action, reward, new_state, alright):
         cur_gamma = self.gamma
         if not alright:
             target = reward
         else:
-            target = reward + self.gamma * np.amax(self.model.predict(new_state, verbose = "0")[0])
+            target = np.amax(self.model.predict(new_state, verbose = "0")[0])
         (_, target_f) = self.get_action(state)
         target_f[0][np.argmax(action)] = target
         self.model.fit(state, target_f, epochs = 1)
@@ -73,8 +100,8 @@ class Agent:
         self.game_count += 1
         replay_batch_size = min(replay_batch_size, len(self.memory))
         batch = random.sample(self.memory, replay_batch_size)
-        for (state, action, reward, new_state, alright) in batch:
-            self.train_short_memory(state, action, reward, new_state, alright)
+        for (state, action, reward, _, alright) in batch:
+            self.train_long_memory(state, action, reward, alright)
 
     def load_model(self, model_path):
         self.model = load_model(model_path)
