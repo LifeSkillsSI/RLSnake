@@ -60,7 +60,7 @@ def train(model_path = "", screen = None):
         # append memory
         agent.memory.append((current_state, pred, reward, new_state, game_alright))
 
-        if not game_alright or game.step_counter > 80*(game.score+3):
+        if not game_alright or game.step_counter > 40*(game.score+3):
             game = Game(screen)
             # train long memory
             agent.replay_mem(1000)
@@ -79,6 +79,6 @@ def train(model_path = "", screen = None):
 if __name__ == "__main__":
     #pygame.init()
     #SCREEN = pygame.display.set_mode([W * SCALE, H * SCALE])
-    train()
+    train("")
 
     #pygame.quit()

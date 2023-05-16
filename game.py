@@ -11,7 +11,6 @@ class Game:
         self.snake = [Pos(int(W / 2), int(H / 2)), 
                       Pos(int(W / 2), int(H / 2)+1), 
                       Pos(int(W / 2), int(H / 2)+2)]
-        self.apple_counter = 0
         self.direction = UP
         self.score = 0
         self.step_counter = 0
@@ -20,25 +19,26 @@ class Game:
     def next_step(self): # Returns (reward, everything alright?, score)
         reward = 0
         self.step_counter += 1
-        self.apple_counter += 1
 
         self.snake.insert(0, self.snake[0] + self.direction)
         if self.snake[0].x < 0 or self.snake[0].y < 0 or self.snake[
-                0].x >= W or self.snake[0].y >= H or self.snake[0] in self.snake[1:] or self.apple_counter > 25:
-            reward = -10
+                0].x >= W or self.snake[0].y >= H or self.snake[0] in self.snake[1:]:
+            reward = -100
             return (reward, False, self.score)
         if self.snake[0] == self.apple:
             # Wąż się nie kurczy!
             # Wylosuj nową pozycję dla jabłka
             self.score += 1
-            reward += 10
+            reward += 100
             self.apple.random_pos()
-            self.apple_counter = 0
             # Póki wylosowana wartość jest "w" wężu, losuj znowu
             while self.apple in self.snake:
                 self.apple.random_pos()
         else:
             self.snake.pop()
+        if (self.snake[0].x - self.apple.x)**2 + (self.snake[0].y - self.apple.y)**2 < (self.snake[1].x - self.apple.x)**2 + (self.snake[1].y - self.apple.y)**2:
+            reward += 1
+        print("Reward: " + str(reward))
         return (reward, True, self.score)
 
     def display(self):

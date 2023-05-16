@@ -16,8 +16,10 @@ MAX_MEMORY = 100000
 class Agent:
     def __init__(self):
         self.model = Sequential()
-        self.model.add(Dense(64, activation='relu', input_dim=22))
-        self.model.add(Dense(48, activation='relu'))
+        self.model.add(Dense(128, activation='relu', input_dim=22))
+        self.model.add(Dense(84, activation='relu'))
+        self.model.add(Dense(32, activation='relu'))
+        self.model.add(Dense(8, activation='relu'))
         #self.model.add(Dense(24, activation='relu'))
         #self.model.add(Dense(12, activation='relu'))
         #self.model.add(Dense(3, activation='softmax'))
@@ -61,7 +63,6 @@ class Agent:
         if not alright:
             target = reward
         else:
-            
             target = reward + self.gamma * np.amax(self.model.predict(new_state, verbose = "0")[0])
         (_, target_f) = self.get_action(state)
         target_f[0][np.argmax(action)] = target

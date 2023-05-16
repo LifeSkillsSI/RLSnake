@@ -68,7 +68,7 @@ if __name__ == "__main__":
     if option == "y":
         manual_control(SCREEN)
     if option == "e":
-        evaluation("/home/przebot/Projects/Python/RLSnake/saves/10", SCREEN)
+        evaluation("./saves/30", SCREEN)
     else:
         train("", SCREEN)
 
